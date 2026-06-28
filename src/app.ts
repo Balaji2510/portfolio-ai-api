@@ -1,9 +1,39 @@
 import express from "express";
+import path from "path";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import { setupSwagger } from './config/swager';
+import { errorHandler } from "./middleware/error.middleware";
+
+import authRoutes from "./modules/auth/auth.routes";
+import adminRoutes from "./modules/admin/admin.routes";
+import portfolioRoutes from "./modules/portfolio/portfolio.routes";
+import contactRoutes from "./modules/contact/contact.routes";
+import aiRoutes from "./modules/ai/ai.routes";
+import resumeRoutes from "./modules/upload/resume.routes";
 
 const app = express();
 
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "*",
+  credentials: true,
+}));
+app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+setupSwagger(app);
 
+// Routes
+app.use('/api', authRoutes);
+app.use('/api', adminRoutes);
+app.use('/api', portfolioRoutes);
+app.use('/api', contactRoutes);
+app.use('/api', aiRoutes);
+app.use('/api', resumeRoutes);
 app.get("/", (req, res) => {
   res.type("html").send(`<!DOCTYPE html>
 <html lang="en">
@@ -55,8 +85,24 @@ app.get("/", (req, res) => {
       </header>
 
       <dl>
-        <dt>GET /</dt>
-        <dd>Returns this HTML API overview document.</dd>
+        <dt>POST /api/auth/register</dt>
+        <dd>Register a new user account</dd>
+        <dt>POST /api/auth/login</dt>
+        <dd>Login with email and password</dd>
+        <dt>GET /api/projects</dt>
+        <dd>Get all projects</dd>
+        <dt>GET /api/skills</dt>
+        <dd>Get all skills</dd>
+        <dt>GET /api/experience</dt>
+        <dd>Get all experiences</dd>
+        <dt>GET /api/education</dt>
+        <dd>Get all educations</dd>
+        <dt>POST /api/contact</dt>
+        <dd>Submit a contact form</dd>
+        <dt>POST /api/chat</dt>
+        <dd>Create a new chat (requires authentication)</dd>
+        <dt>POST /api/resume/upload</dt>
+        <dd>Upload a PDF resume</dd>
       </dl>
 
       <section class="note">
@@ -66,5 +112,17 @@ app.get("/", (req, res) => {
   </body>
 </html>`);
 });
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
+
+
+// Error Handler (must be last)
+app.use(errorHandler);
 
 export default app;
