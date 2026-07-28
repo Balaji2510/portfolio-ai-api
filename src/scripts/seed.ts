@@ -10,7 +10,7 @@ import { seedProjects } from './seeders/project.seeder';
 import { seedExperiences } from './seeders/experience.seeder';
 import { seedEducations } from './seeders/education.seeder';
 import { seedCertificates } from './seeders/certificate.seeder';
-import { seedResume } from './seeders/resume.seeder';
+
 import { seedBlogs } from './seeders/blog.seeder';
 import { seedContacts } from './seeders/contact.seeder';
 import { seedKnowledge } from './seeders/knowledge.seeder';
@@ -40,7 +40,7 @@ async function seed() {
         await seedExperiences();
         await seedEducations();
         await seedCertificates();
-        await seedResume();
+
         await seedBlogs();
         await seedContacts();
         await seedKnowledge();

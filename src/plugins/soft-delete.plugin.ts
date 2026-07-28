@@ -22,16 +22,8 @@ export function softDeletePlugin(schema: Schema) {
 
     });
 
-    schema.pre(/^find/, function (this: any, next: (err?: Error) => void) {
-
-        this.where({
-
-            isDeleted: false
-
-        });
-
-        next();
-
+    schema.pre(/^find/, function (this: any) {
+        this.where({ isDeleted: false });
     });
 
 }

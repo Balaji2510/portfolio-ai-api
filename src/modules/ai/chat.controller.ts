@@ -2,13 +2,17 @@ import { Response } from 'express';
 import { ChatService } from './chat.service';
 import { asyncHandler } from '../../middleware/error.middleware';
 import { AuthRequest } from '../../middleware/auth.middleware';
+import Analytics from '../../models/analytics.model';
 
 const chatService = new ChatService();
 
 export class ChatController {
   static createChat = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { title } = req.body;
-    const chat = await chatService.createChat(req.userId!, title);
+    const chat = await chatService.createChat(req.userId || undefined, title);
+
+    // Track analytics
+    await Analytics.findOneAndUpdate({}, { $inc: { aiChats: 1 } }, { upsert: true, setDefaultsOnInsert: true });
 
     res.status(201).json({
       success: true,
@@ -21,7 +25,7 @@ export class ChatController {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
-    const result = await chatService.getUserChats(req.userId!, page, limit);
+    const result = await chatService.getUserChats(req.userId || undefined, page, limit);
 
     res.status(200).json({
       success: true,
@@ -39,15 +43,6 @@ export class ChatController {
   static getChatById = asyncHandler(async (req: AuthRequest, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const chat = await chatService.getChatById(id);
-
-    // Verify ownership
-    if (chat.userId?.toString() !== req.userId) {
-      res.status(403).json({
-        success: false,
-        message: 'You do not have permission to access this chat',
-      });
-      return;
-    }
 
     res.status(200).json({
       success: true,
@@ -70,20 +65,19 @@ export class ChatController {
 
     // Verify chat ownership
     const chat = await chatService.getChatById(chatId);
-    if (chat.userId?.toString() !== req.userId) {
-      res.status(403).json({
-        success: false,
-        message: 'You do not have permission to access this chat',
-      });
-      return;
-    }
 
     // Save user message
     const userMsg = await chatService.addMessage(chatId, 'user', message);
 
     // Generate assistant response
-    const assistantResponse = await chatService.generateResponse(message);
+    const assistantResponse = await chatService.generateResponse(chatId, message);
     const assistantMsg = await chatService.addMessage(chatId, 'assistant', assistantResponse);
+
+    let updatedTitle = chat.title;
+    if (!chat.messages || chat.messages.length === 0) {
+      updatedTitle = await chatService.generateTitle(message);
+      await chatService.updateChatTitle(chatId, updatedTitle);
+    }
 
     res.status(200).json({
       success: true,
@@ -91,6 +85,7 @@ export class ChatController {
       data: {
         userMessage: userMsg,
         assistantMessage: assistantMsg,
+        chatTitle: updatedTitle,
       },
     });
   });
@@ -100,13 +95,6 @@ export class ChatController {
 
     // Verify ownership
     const chat = await chatService.getChatById(id);
-    if (chat.userId?.toString() !== req.userId) {
-      res.status(403).json({
-        success: false,
-        message: 'You do not have permission to delete this chat',
-      });
-      return;
-    }
 
     await chatService.deleteChat(id);
 
@@ -130,13 +118,6 @@ export class ChatController {
 
     // Verify ownership
     const chat = await chatService.getChatById(id);
-    if (chat.userId?.toString() !== req.userId) {
-      res.status(403).json({
-        success: false,
-        message: 'You do not have permission to update this chat',
-      });
-      return;
-    }
 
     const updatedChat = await chatService.updateChatTitle(id, title);
 

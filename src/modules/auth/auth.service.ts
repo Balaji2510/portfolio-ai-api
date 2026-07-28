@@ -4,9 +4,9 @@ import User from '../../models/user.model';
 import { IUser } from '../../models/user.model';
 
 export class AuthService {
-  private jwtSecret = process.env.JWT_SECRET || 'secret';
-  private jwtExpiry: SignOptions['expiresIn'] = (process.env.JWT_EXPIRY || '24h') as SignOptions['expiresIn'];
-  private refreshTokenExpiry: SignOptions['expiresIn'] = (process.env.REFRESH_TOKEN_EXPIRY || '7d') as SignOptions['expiresIn'];
+  private get jwtSecret() { return process.env.JWT_SECRET || 'secret'; }
+  private get jwtExpiry() { return (process.env.JWT_EXPIRY || '24h') as SignOptions['expiresIn']; }
+  private get refreshTokenExpiry() { return (process.env.REFRESH_TOKEN_EXPIRY || '7d') as SignOptions['expiresIn']; }
 
   async register(data: {
     firstName: string;

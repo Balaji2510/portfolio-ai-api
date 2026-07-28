@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
-import { ProjectsService, SkillsService, ExperienceService, EducationService } from './portfolio.service';
+import { ProjectsService, SkillsService, ExperienceService, EducationService, BlogService, CertificateService, SettingService, StatisticsService } from './portfolio.service';
 import { asyncHandler } from '../../middleware/error.middleware';
 
 const projectsService = new ProjectsService();
 const skillsService = new SkillsService();
 const experienceService = new ExperienceService();
 const educationService = new EducationService();
+const blogService = new BlogService();
+const certificateService = new CertificateService();
+const settingService = new SettingService();
+const statisticsService = new StatisticsService();
 
 // Projects
 export class ProjectsController {
@@ -166,5 +170,104 @@ export class EducationController {
     const id = String(req.params.id);
     await educationService.deleteEducation(id);
     res.status(200).json({ success: true, message: 'Education deleted successfully' });
+  });
+}
+
+// Blogs
+export class BlogController {
+  static getAll = asyncHandler(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const result = await blogService.getAllBlogs(page, limit);
+    res.status(200).json({ success: true, message: 'Blogs retrieved successfully', data: result.blogs, pagination: { total: result.total, page, limit, pages: Math.ceil(result.total / limit) } });
+  });
+  static getById = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const blog = await blogService.getBlogById(id);
+    res.status(200).json({ success: true, message: 'Blog retrieved successfully', data: blog });
+  });
+  static create = asyncHandler(async (req: Request, res: Response) => {
+    const blog = await blogService.createBlog(req.body);
+    res.status(201).json({ success: true, message: 'Blog created successfully', data: blog });
+  });
+  static update = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const blog = await blogService.updateBlog(id, req.body);
+    res.status(200).json({ success: true, message: 'Blog updated successfully', data: blog });
+  });
+  static delete = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    await blogService.deleteBlog(id);
+    res.status(200).json({ success: true, message: 'Blog deleted successfully' });
+  });
+}
+
+// Certificates
+export class CertificateController {
+  static getAll = asyncHandler(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const result = await certificateService.getAllCertificates(page, limit);
+    res.status(200).json({ success: true, message: 'Certificates retrieved successfully', data: result.certificates, pagination: { total: result.total, page, limit, pages: Math.ceil(result.total / limit) } });
+  });
+  static getById = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const certificate = await certificateService.getCertificateById(id);
+    res.status(200).json({ success: true, message: 'Certificate retrieved successfully', data: certificate });
+  });
+  static create = asyncHandler(async (req: Request, res: Response) => {
+    const certificate = await certificateService.createCertificate(req.body);
+    res.status(201).json({ success: true, message: 'Certificate created successfully', data: certificate });
+  });
+  static update = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const certificate = await certificateService.updateCertificate(id, req.body);
+    res.status(200).json({ success: true, message: 'Certificate updated successfully', data: certificate });
+  });
+  static delete = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    await certificateService.deleteCertificate(id);
+    res.status(200).json({ success: true, message: 'Certificate deleted successfully' });
+  });
+}
+
+// Settings
+export class SettingController {
+  static get = asyncHandler(async (req: Request, res: Response) => {
+    const settings = await settingService.getSettings();
+    res.status(200).json({ success: true, message: 'Settings retrieved successfully', data: settings });
+  });
+  static update = asyncHandler(async (req: Request, res: Response) => {
+    const settings = await settingService.updateSettings(req.body);
+    res.status(200).json({ success: true, message: 'Settings updated successfully', data: settings });
+  });
+}
+
+// Statistics
+export class StatisticsController {
+  static getAll = asyncHandler(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const result = await statisticsService.getAllStatistics(page, limit);
+    res.status(200).json({ success: true, message: 'Statistics retrieved successfully', data: result.statistics, pagination: { total: result.total, page, limit, pages: Math.ceil(result.total / limit) } });
+  });
+  static getById = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const statistic = await statisticsService.getStatisticById(id);
+    res.status(200).json({ success: true, message: 'Statistic retrieved successfully', data: statistic });
+  });
+  static create = asyncHandler(async (req: Request, res: Response) => {
+    const statistic = await statisticsService.createStatistic(req.body);
+    res.status(201).json({ success: true, message: 'Statistic created successfully', data: statistic });
+  });
+  static update = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const statistic = await statisticsService.updateStatistic(id, req.body);
+    res.status(200).json({ success: true, message: 'Statistic updated successfully', data: statistic });
+  });
+  static delete = asyncHandler(async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    await statisticsService.deleteStatistic(id);
+    res.status(200).json({ success: true, message: 'Statistic deleted successfully' });
   });
 }

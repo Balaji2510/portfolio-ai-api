@@ -4,6 +4,10 @@ import {
   SkillsController,
   ExperienceController,
   EducationController,
+  BlogController,
+  CertificateController,
+  SettingController,
+  StatisticsController
 } from './portfolio.controller';
 import { authMiddleware, adminMiddleware } from '../../middleware/auth.middleware';
 
@@ -37,5 +41,30 @@ router.get('/education/:id', EducationController.getById);
 router.post('/education', authMiddleware, adminMiddleware, EducationController.create);
 router.put('/education/:id', authMiddleware, adminMiddleware, EducationController.update);
 router.delete('/education/:id', authMiddleware, adminMiddleware, EducationController.delete);
+
+// Blogs - Public GET, Protected Write
+router.get('/blogs', BlogController.getAll);
+router.get('/blogs/:id', BlogController.getById);
+router.post('/blogs', authMiddleware, adminMiddleware, BlogController.create);
+router.put('/blogs/:id', authMiddleware, adminMiddleware, BlogController.update);
+router.delete('/blogs/:id', authMiddleware, adminMiddleware, BlogController.delete);
+
+// Certificates - Public GET, Protected Write
+router.get('/certificates', CertificateController.getAll);
+router.get('/certificates/:id', CertificateController.getById);
+router.post('/certificates', authMiddleware, adminMiddleware, CertificateController.create);
+router.put('/certificates/:id', authMiddleware, adminMiddleware, CertificateController.update);
+router.delete('/certificates/:id', authMiddleware, adminMiddleware, CertificateController.delete);
+
+// Settings - Public GET, Protected Write
+router.get('/settings', SettingController.get);
+router.put('/settings', authMiddleware, adminMiddleware, SettingController.update);
+
+// Statistics - Public GET, Protected Write
+router.get('/statistics', StatisticsController.getAll);
+router.get('/statistics/:id', StatisticsController.getById);
+router.post('/statistics', authMiddleware, adminMiddleware, StatisticsController.create);
+router.put('/statistics/:id', authMiddleware, adminMiddleware, StatisticsController.update);
+router.delete('/statistics/:id', authMiddleware, adminMiddleware, StatisticsController.delete);
 
 export default router;

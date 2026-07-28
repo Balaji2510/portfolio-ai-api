@@ -11,7 +11,8 @@ import adminRoutes from "./modules/admin/admin.routes";
 import portfolioRoutes from "./modules/portfolio/portfolio.routes";
 import contactRoutes from "./modules/contact/contact.routes";
 import aiRoutes from "./modules/ai/ai.routes";
-import resumeRoutes from "./modules/upload/resume.routes";
+import analyticsRoutes from "./modules/analytics/analytics.routes";
+
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use('/api', adminRoutes);
 app.use('/api', portfolioRoutes);
 app.use('/api', contactRoutes);
 app.use('/api', aiRoutes);
-app.use('/api', resumeRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
 app.get("/", (req, res) => {
   res.type("html").send(`<!DOCTYPE html>
 <html lang="en">
@@ -101,8 +103,7 @@ app.get("/", (req, res) => {
         <dd>Submit a contact form</dd>
         <dt>POST /api/chat</dt>
         <dd>Create a new chat (requires authentication)</dd>
-        <dt>POST /api/resume/upload</dt>
-        <dd>Upload a PDF resume</dd>
+
       </dl>
 
       <section class="note">

@@ -16,6 +16,8 @@ export interface IChat extends Document {
 
     active: boolean;
 
+    messages?: Schema.Types.ObjectId[] | any[];
+
     createdAt: Date;
 
     updatedAt: Date;
@@ -54,7 +56,12 @@ default:0
 active:{
 type:Boolean,
 default:true
-}
+},
+
+messages:[{
+type:Schema.Types.ObjectId,
+ref:'Message'
+}]
 
 },
 schemaOptions);

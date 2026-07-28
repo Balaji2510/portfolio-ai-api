@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ContactService } from './contact.service';
 import { asyncHandler } from '../../middleware/error.middleware';
+import Analytics from '../../models/analytics.model';
 
 const contactService = new ContactService();
 
@@ -22,6 +23,9 @@ export class ContactController {
       subject,
       message,
     });
+
+    // Track analytics
+    await Analytics.findOneAndUpdate({}, { $inc: { contactRequests: 1 } }, { upsert: true, setDefaultsOnInsert: true });
 
     res.status(201).json({
       success: true,
