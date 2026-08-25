@@ -3,8 +3,7 @@ import slugify from 'slugify';
 
 export function slugPlugin(schema: Schema) {
 
-    (schema as any).pre('save', function (this: any, next: (err?: Error) => void) {
-
+    schema.pre('save', function (this: any) {
         if (this.isModified('title')) {
             const title = typeof this.title === 'string' ? this.title : '';
 
@@ -15,9 +14,6 @@ export function slugPlugin(schema: Schema) {
                 });
             }
         }
-
-        next();
-
     });
 
 }
