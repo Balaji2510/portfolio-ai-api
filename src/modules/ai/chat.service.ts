@@ -10,8 +10,17 @@ import { ProjectsService, SkillsService, ExperienceService } from '../portfolio/
 let groqInstance: Groq | null = null;
 const getGroq = () => {
   if (!groqInstance) {
+    const apiKey = process.env.GROQ_API_KEY;
+    console.log("DEBUG: Checking GROQ_API_KEY...");
+    console.log(`DEBUG: Key exists? ${!!apiKey}`);
+    console.log(`DEBUG: Key type? ${typeof apiKey}`);
+    console.log(`DEBUG: Key length? ${apiKey ? apiKey.length : 0}`);
+    if (apiKey && apiKey.length > 5) {
+      console.log(`DEBUG: Key starts with: ${apiKey.substring(0, 4)}...`);
+    }
+
     groqInstance = new Groq({
-      apiKey: process.env.GROQ_API_KEY || 'missing_key',
+      apiKey: apiKey || 'missing_key',
     });
   }
   return groqInstance;
