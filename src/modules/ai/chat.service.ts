@@ -100,7 +100,7 @@ export class ChatService {
       const prompt = `Generate a very short, concise title (max 4-5 words) for a chat that starts with this message:\n"${userMessage}"\n\nTitle:`;
       const completion = await getGroq().chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
-        model: 'llama3-8b-8192',
+        model: process.env.AI_MODEL || 'llama-3.3-70b-versatile',
       });
       return completion.choices[0]?.message?.content?.replace(/["']/g, '').trim() || 'New Chat';
     } catch (error) {
@@ -166,7 +166,7 @@ HANDLING QUESTIONS:
           { role: 'system', content: systemPrompt },
           ...history
         ],
-        model: 'llama3-8b-8192',
+        model: process.env.AI_MODEL || 'llama-3.3-70b-versatile',
       });
 
       return completion.choices[0]?.message?.content || 'I am sorry, I could not generate a response.';
