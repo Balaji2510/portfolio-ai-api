@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '.env.production') });
 
-const MONGO_URI = process.env.STORAGE_MONGO_URI;
+const MONGO_URI = process.env.STORAGE_MONGO_URI || process.env.MONGODB_URI;
 const DB_NAME = process.env.DB_NAME || 'portfolio_ai';
 
 const globalWithMongoose = global as typeof globalThis & {
@@ -21,7 +21,7 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
   }
 
   if (!MONGO_URI) {
-    throw new Error("STORAGE_MONGO_URI is missing in .env");
+    throw new Error("STORAGE_MONGO_URI or MONGODB_URI is missing in Vercel Environment Variables");
   }
 
   if (!globalWithMongoose.mongoose?.promise) {
