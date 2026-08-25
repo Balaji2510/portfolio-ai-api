@@ -2,6 +2,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from '../../models/user.model';
 import { IUser } from '../../models/user.model';
+import { createApiError } from '../../middleware/error.middleware';
 
 export class AuthService {
   private get jwtSecret() { return process.env.JWT_SECRET || 'secret'; }
@@ -17,7 +18,7 @@ export class AuthService {
   }): Promise<{ user: IUser; token: string; refreshToken: string }> {
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
-      throw new Error('User already exists with this email');
+      throw createApiError(400, 'User already exists with this email');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -48,16 +49,16 @@ export class AuthService {
   async login(email: string, password: string): Promise<{ user: IUser; token: string; refreshToken: string }> {
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw createApiError(401, 'Invalid email or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      throw createApiError(401, 'Invalid email or password');
     }
 
     if (!user.isActive) {
-      throw new Error('User account is inactive');
+      throw createApiError(403, 'User account is inactive');
     }
 
     const signOptions: SignOptions = { expiresIn: this.jwtExpiry };
@@ -79,7 +80,7 @@ export class AuthService {
       const user = await User.findById(decoded.userId);
 
       if (!user || !user.isActive) {
-        throw new Error('User not found or inactive');
+        throw createApiError(401, 'User not found or inactive');
       }
 
       const signOptions: SignOptions = { expiresIn: this.jwtExpiry as any };
@@ -90,7 +91,7 @@ export class AuthService {
 
       return { token: newToken, refreshToken: newRefreshToken };
     } catch (error) {
-      throw new Error('Invalid refresh token');
+      throw createApiError(401, 'Invalid refresh token');
     }
   }
 
@@ -98,7 +99,7 @@ export class AuthService {
     try {
       return jwt.verify(token, this.jwtSecret);
     } catch (error) {
-      throw new Error('Invalid or expired token');
+      throw createApiError(401, 'Invalid or expired token');
     }
   }
 }
