@@ -7,9 +7,15 @@ import Groq from 'groq-sdk';
 import { ProjectsService, SkillsService, ExperienceService } from '../portfolio/portfolio.service';
 
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groqInstance: Groq | null = null;
+const getGroq = () => {
+  if (!groqInstance) {
+    groqInstance = new Groq({
+      apiKey: process.env.GROQ_API_KEY || 'missing_key',
+    });
+  }
+  return groqInstance;
+};
 export class ChatService {
   private projectsService = new ProjectsService();
   private skillsService = new SkillsService();
@@ -83,7 +89,7 @@ export class ChatService {
   async generateTitle(userMessage: string): Promise<string> {
     try {
       const prompt = `Generate a very short, concise title (max 4-5 words) for a chat that starts with this message:\n"${userMessage}"\n\nTitle:`;
-      const completion = await groq.chat.completions.create({
+      const completion = await getGroq().chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
         model: 'llama-3.1-8b-instant',
       });
@@ -146,7 +152,7 @@ HANDLING QUESTIONS:
         console.error('Error fetching context:', err);
       }
 
-      const completion = await groq.chat.completions.create({
+      const completion = await getGroq().chat.completions.create({
         messages: [
           { role: 'system', content: systemPrompt },
           ...history
